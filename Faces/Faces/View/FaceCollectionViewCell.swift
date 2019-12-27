@@ -16,10 +16,13 @@ class FaceCollectionViewCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.frame = CGRect.init(x: 0, y: 0, width: 120, height: 120)
         imageView.backgroundColor = .systemGray
-        imageView.layer.cornerRadius = 10
+        imageView.layer.cornerRadius = imageView.frame.width / 2
+        imageView.layer.borderColor = UIColor(white: 0, alpha: 0.3).cgColor
+        imageView.layer.borderWidth = 2
+        imageView.clipsToBounds = true
         return imageView
     }()
-    
+
     let name: UILabel = {
         let label = UILabel()
         label.textColor = .label
@@ -40,6 +43,8 @@ class FaceCollectionViewCell: UICollectionViewCell {
     }
 
     func setupCellView() {
+        layer.cornerRadius = faceImageView.frame.width / 2
+        
         contentView.addSubview(faceImageView)
         contentView.addSubview(name)
         

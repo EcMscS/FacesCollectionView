@@ -25,17 +25,31 @@ class MainVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, UI
     
     func setupNavBar() {
         title = "Faces"
-        navigationController?.navigationBar.tintColor = .systemBlue
-        navigationController?.navigationBar.barTintColor = .systemRed
+        //navigationController?.navigationBar.tintColor = .systemTeal
+        navigationController?.navigationBar.barTintColor = .systemTeal
         navigationController?.navigationBar.isTranslucent = true
         //navigationController?.navigationBar.prefersLargeTitles = true
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add
             , target: self, action: #selector(pickImage))
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(takePicture))
     }
     
     @objc func pickImage() {
         let picker = UIImagePickerController()
+        picker.allowsEditing = true
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+    
+    @objc func takePicture() {
+        let picker = UIImagePickerController()
+        
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.sourceType = .camera
+        }
+        
         picker.allowsEditing = true
         picker.delegate = self
         present(picker, animated: true)
@@ -97,7 +111,8 @@ class MainVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, UI
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let person = people[indexPath.item]
         
-        let ac = UIAlertController(title: "Rename Person", message: nil, preferredStyle: .alert)
+        let ac = UIAlertController(title: "Rename or Delete Person", message: "New name or delete person form list", preferredStyle: .alert)
+        
         ac.addTextField()
         
         ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -107,6 +122,11 @@ class MainVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, UI
             person.name = newName
 
             self?.collectionView.reloadData()
+        })
+        
+        ac.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+            self?.people.remove(at: indexPath.item)
+            self?.collectionView.deleteItems(at: [indexPath])
         })
         
         present(ac, animated: true)

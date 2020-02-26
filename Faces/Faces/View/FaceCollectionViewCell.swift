@@ -61,10 +61,9 @@ class FaceCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    func configure(nameToAdd: String, face: UIImage) {
-        name.text = nameToAdd
-        faceImageView.image = face
+    func configure(person: Person) {
+        name.text = person.name
+        let imageURL = FileHelper.shared.getDocumentsDirectory().appendingPathComponent(person.image)
+        faceImageView.image = UIImage(contentsOfFile: imageURL.path)
     }
-    
-    
 }

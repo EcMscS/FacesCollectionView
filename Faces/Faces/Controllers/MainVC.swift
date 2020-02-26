@@ -12,7 +12,7 @@
 
 import UIKit
 
-class MainVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+class MainVC: UICollectionViewController {
 
     var people = [Person]()
     
@@ -24,15 +24,13 @@ class MainVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, UI
     }
     
     func setupNavBar() {
-        title = "Faces"
-        //navigationController?.navigationBar.tintColor = .systemTeal
-        navigationController?.navigationBar.barTintColor = .systemTeal
+        title = "Contacts"
+        navigationController?.navigationBar.tintColor = .systemRed
+        navigationController?.navigationBar.barTintColor = .systemYellow
         navigationController?.navigationBar.isTranslucent = true
-        //navigationController?.navigationBar.prefersLargeTitles = true
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add
             , target: self, action: #selector(pickImage))
-        
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .camera, target: self, action: #selector(takePicture))
     }
     
@@ -56,38 +54,16 @@ class MainVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, UI
     }
     
     func setupCollectionView() {
-    
         collectionView.dataSource = self
         collectionView.delegate = self
         
         collectionView.backgroundColor = .systemBackground
         collectionView.register(FaceCollectionViewCell.self, forCellWithReuseIdentifier: "PersonCell")
     }
+}
+
+extension MainVC: UICollectionViewDelegateFlowLayout {
     
-    //MARK: - UIImagePickerControllerDelegate
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let image = info[.editedImage] as? UIImage else { return }
-        
-        let imageName = UUID().uuidString
-        let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
-        
-        if let jpegData = image.jpegData(compressionQuality: 0.8) {
-            try? jpegData.write(to: imagePath)
-        }
-        
-        let person = Person(name: "Unknown", image: imageName)
-        people.append(person)
-        collectionView.reloadData()
-        
-        dismiss(animated: true)
-    }
-    
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
-    }
-    
-    //MARK: - UICollectionView
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return people.count
     }
@@ -99,12 +75,7 @@ class MainVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, UI
         }
         
         let person = people[indexPath.item]
-        
-        cell.name.text = person.name
-        
-        let path = getDocumentsDirectory().appendingPathComponent(person.image)
-        cell.faceImageView.image = UIImage(contentsOfFile: path.path)
-        
+        cell.configure(person:person)
         return cell
     }
     
@@ -131,5 +102,24 @@ class MainVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, UI
         
         present(ac, animated: true)
     }
-    
+}
+
+extension MainVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let image = info[.editedImage] as? UIImage else { return }
+        
+        let imageName = UUID().uuidString
+        let imagePath = FileHelper.shared.getDocumentsDirectory().appendingPathComponent(imageName)
+        
+        if let jpegData = image.jpegData(compressionQuality: 0.8) {
+            try? jpegData.write(to: imagePath)
+        }
+        
+        let person = Person(name: "Unknown", image: imageName)
+        people.append(person)
+        collectionView.reloadData()
+        
+        dismiss(animated: true)
+    }
+
 }
